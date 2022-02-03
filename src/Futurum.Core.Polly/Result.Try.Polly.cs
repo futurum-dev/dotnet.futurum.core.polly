@@ -4,7 +4,7 @@ using Polly;
 
 namespace Futurum.Core.Polly;
 
-public static partial class Result
+public static class ResultPolly
 {
     /// <summary>
     /// Try to run <paramref name="func"/>, using the Polly policy.
@@ -21,17 +21,17 @@ public static partial class Result
     ///     </item>
     /// </list>
     /// </summary>
-    public static async Task<Core.Result.Result> TryAsync(Func<Task> func, Func<string> errorMessage, IAsyncPolicy policy)
+    public static async Task<Result.Result> TryAsync(Func<Task> func, Func<string> errorMessage, IAsyncPolicy policy)
     {
         try
         {
             await policy.ExecuteAsync(func);
 
-            return Core.Result.Result.Ok();
+            return Result.Result.Ok();
         }
         catch (Exception exception)
         {
-            return Core.Result.Result.Fail(exception.ToResultError(errorMessage()));
+            return Result.Result.Fail(exception.ToResultError(errorMessage()));
         }
     }
 
@@ -56,11 +56,11 @@ public static partial class Result
         {
             var value = await policy.ExecuteAsync(func);
 
-            return Core.Result.Result.Ok(value);
+            return Result.Result.Ok(value);
         }
         catch (Exception exception)
         {
-            return Core.Result.Result.Fail<T>(exception.ToResultError(errorMessage()));
+            return Result.Result.Fail<T>(exception.ToResultError(errorMessage()));
         }
     }
 
@@ -79,7 +79,7 @@ public static partial class Result
     ///     </item>
     /// </list>
     /// </summary>
-    public static async Task<Core.Result.Result> TryAsync(Func<Task<Core.Result.Result>> func, Func<string> errorMessage, IAsyncPolicy<Core.Result.Result> policy)
+    public static async Task<Result.Result> TryAsync(Func<Task<Result.Result>> func, Func<string> errorMessage, IAsyncPolicy<Result.Result> policy)
     {
         try
         {
@@ -89,7 +89,7 @@ public static partial class Result
         }
         catch (Exception exception)
         {
-            return Core.Result.Result.Fail(exception.ToResultError(errorMessage()));
+            return Result.Result.Fail(exception.ToResultError(errorMessage()));
         }
     }
 
@@ -118,7 +118,7 @@ public static partial class Result
         }
         catch (Exception exception)
         {
-            return Core.Result.Result.Fail<T>(exception.ToResultError(errorMessage()));
+            return Result.Result.Fail<T>(exception.ToResultError(errorMessage()));
         }
     }
 }

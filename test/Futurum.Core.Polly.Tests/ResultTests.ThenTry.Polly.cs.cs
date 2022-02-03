@@ -32,7 +32,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
                         var func = () => Task.CompletedTask;
 
@@ -49,7 +49,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
                         var func = () =>
                         {
@@ -74,7 +74,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
                         var func = () => Task.CompletedTask;
 
@@ -91,7 +91,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
                         var func = () =>
                         {
@@ -119,7 +119,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
                         var func = () => Task.FromResult(value);
 
@@ -136,7 +136,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
                         var func = () =>
                         {
@@ -161,7 +161,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
                         var func = () => Task.FromResult(value);
 
@@ -178,7 +178,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
                         var func = () =>
                         {
@@ -206,9 +206,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
-                        var func = () => Core.Result.Result.OkAsync();
+                        var func = () => Result.Result.OkAsync();
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -223,9 +223,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
-                        var func = () => Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -243,9 +243,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.OkAsync();
+                        var func = () => Result.Result.OkAsync();
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -260,9 +260,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -283,9 +283,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
-                        var func = () => Core.Result.Result.OkAsync(value);
+                        var func = () => Result.Result.OkAsync(value);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -300,9 +300,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Ok();
+                        var input = Result.Result.Ok();
 
-                        var func = () => Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -320,9 +320,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.OkAsync(value);
+                        var func = () => Result.Result.OkAsync(value);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -337,9 +337,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail(ERROR_MESSAGE);
+                        var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -366,7 +366,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
@@ -391,7 +391,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
@@ -421,7 +421,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
@@ -446,7 +446,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
@@ -480,7 +480,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
@@ -505,7 +505,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
@@ -532,7 +532,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) => Task.FromResult(value);
 
@@ -549,7 +549,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
@@ -580,12 +580,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync();
+                            return Result.Result.OkAsync();
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -605,7 +605,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
@@ -613,7 +613,7 @@ public class ResultThenTryPollyTests
 
                             throw new Exception(ERROR_MESSAGE);
 
-                            return Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                            return Result.Result.FailAsync(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -635,12 +635,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync();
+                            return Result.Result.OkAsync();
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -659,12 +659,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                            return Result.Result.FailAsync(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -690,12 +690,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync(value);
+                            return Result.Result.OkAsync(value);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -715,12 +715,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Ok(inputValue);
+                        var input = Result.Result.Ok(inputValue);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -742,12 +742,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync(value);
+                            return Result.Result.OkAsync(value);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -766,12 +766,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.Fail<int>(ERROR_MESSAGE);
+                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -800,7 +800,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
                         var func = () => Task.CompletedTask;
 
@@ -817,7 +817,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
                         var func = () =>
                         {
@@ -842,7 +842,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var func = () => Task.CompletedTask;
 
@@ -859,7 +859,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var func = () =>
                         {
@@ -887,7 +887,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
                         var func = () => Task.FromResult(value);
 
@@ -904,7 +904,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
                         var func = () =>
                         {
@@ -929,7 +929,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var func = () => Task.FromResult(value);
 
@@ -946,7 +946,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var func = () =>
                         {
@@ -974,9 +974,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
-                        var func = () => Core.Result.Result.OkAsync();
+                        var func = () => Result.Result.OkAsync();
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -991,9 +991,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
-                        var func = () => Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -1011,9 +1011,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.OkAsync();
+                        var func = () => Result.Result.OkAsync();
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -1028,9 +1028,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
@@ -1051,9 +1051,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
-                        var func = () => Core.Result.Result.OkAsync(value);
+                        var func = () => Result.Result.OkAsync(value);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -1068,9 +1068,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.OkAsync();
+                        var input = Result.Result.OkAsync();
 
-                        var func = () => Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -1088,9 +1088,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.OkAsync(value);
+                        var func = () => Result.Result.OkAsync(value);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -1105,9 +1105,9 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                        var func = () => Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
@@ -1134,7 +1134,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
@@ -1159,7 +1159,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
@@ -1189,7 +1189,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
@@ -1214,7 +1214,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
@@ -1248,7 +1248,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
@@ -1273,7 +1273,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
@@ -1300,7 +1300,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) => Task.FromResult(value);
 
@@ -1317,7 +1317,7 @@ public class ResultThenTryPollyTests
                         var count = 0;
                         var retryCount = 3;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
@@ -1348,12 +1348,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync();
+                            return Result.Result.OkAsync();
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -1373,7 +1373,7 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
@@ -1381,7 +1381,7 @@ public class ResultThenTryPollyTests
 
                             throw new Exception(ERROR_MESSAGE);
 
-                            return Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                            return Result.Result.FailAsync(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -1403,12 +1403,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync();
+                            return Result.Result.OkAsync();
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -1427,12 +1427,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                            return Result.Result.FailAsync(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
@@ -1458,12 +1458,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync(value);
+                            return Result.Result.OkAsync(value);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -1483,12 +1483,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.OkAsync(inputValue);
+                        var input = Result.Result.OkAsync(inputValue);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -1510,12 +1510,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.OkAsync(value);
+                            return Result.Result.OkAsync(value);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -1534,12 +1534,12 @@ public class ResultThenTryPollyTests
 
                         var inputReceived = 0;
 
-                        var input = Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
                         var func = (int x) =>
                         {
                             inputReceived = x;
-                            return Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
                         };
 
                         var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
@@ -1561,7 +1561,7 @@ public class ResultThenTryPollyTests
         Policy<T>.Handle<Exception>()
               .RetryAsync(retryCount, (_, _, _) => action());
 
-    private static AsyncRetryPolicy<Core.Result.Result> ResultRetryPolicy(Action action, int retryCount) =>
+    private static AsyncRetryPolicy<Result.Result> ResultRetryPolicy(Action action, int retryCount) =>
         Policy.Handle<Exception>()
               .HandleResult()
               .RetryAsync(retryCount, (_, _, _) => action());

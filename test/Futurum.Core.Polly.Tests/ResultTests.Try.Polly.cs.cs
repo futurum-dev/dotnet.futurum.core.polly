@@ -29,7 +29,7 @@ public class ResultTryPollyTests
 
                 var func = () => Task.CompletedTask;
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
                 result.ShouldBeSuccess();
                 count.Should().Be(0);
@@ -48,7 +48,7 @@ public class ResultTryPollyTests
                     return Task.CompletedTask;
                 };
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
                 result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
                 count.Should().Be(retryCount);
@@ -66,7 +66,7 @@ public class ResultTryPollyTests
 
                 var func = () => Task.FromResult(value);
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
                 result.ShouldBeSuccessWithValue(value);
                 count.Should().Be(0);
@@ -86,7 +86,7 @@ public class ResultTryPollyTests
                     return Task.FromResult(value);
                 };
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
                 result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
                 count.Should().Be(retryCount);
@@ -104,9 +104,9 @@ public class ResultTryPollyTests
                 var count = 0;
                 var retryCount = 3;
 
-                var func = () => Core.Result.Result.OkAsync();
+                var func = () => Result.Result.OkAsync();
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
                 result.ShouldBeSuccess();
                 count.Should().Be(0);
@@ -118,9 +118,9 @@ public class ResultTryPollyTests
                 var count = 0;
                 var retryCount = 3;
 
-                var func = () => Core.Result.Result.FailAsync(ERROR_MESSAGE);
+                var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
                 result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
                 count.Should().Be(retryCount);
@@ -136,10 +136,10 @@ public class ResultTryPollyTests
                 {
                     throw new Exception(ERROR_MESSAGE);
 
-                    return Core.Result.Result.OkAsync();
+                    return Result.Result.OkAsync();
                 };
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
 
                 result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
                 count.Should().Be(retryCount);
@@ -155,9 +155,9 @@ public class ResultTryPollyTests
                 var count = 0;
                 var retryCount = 3;
 
-                var func = () => Core.Result.Result.OkAsync(value);
+                var func = () => Result.Result.OkAsync(value);
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
                 result.ShouldBeSuccessWithValue(value);
                 count.Should().Be(0);
@@ -170,9 +170,9 @@ public class ResultTryPollyTests
                 var count = 0;
                 var retryCount = 3;
 
-                var func = () => Core.Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
                 result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
                 count.Should().Be(retryCount);
@@ -189,10 +189,10 @@ public class ResultTryPollyTests
                 {
                     throw new Exception(ERROR_MESSAGE);
 
-                    return Core.Result.Result.OkAsync(value);
+                    return Result.Result.OkAsync(value);
                 };
 
-                var result = await Result.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                var result = await ResultPolly.TryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
 
                 result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
                 count.Should().Be(retryCount);
@@ -204,7 +204,7 @@ public class ResultTryPollyTests
         Policy.Handle<Exception>()
               .RetryAsync(retryCount, (_, _, _) => action());
 
-    private static AsyncRetryPolicy<Core.Result.Result> ResultRetryPolicy(Action action, int retryCount) =>
+    private static AsyncRetryPolicy<Result.Result> ResultRetryPolicy(Action action, int retryCount) =>
         Policy.Handle<Exception>()
               .HandleResult()
               .RetryAsync(retryCount, (_, _, _) => action());
