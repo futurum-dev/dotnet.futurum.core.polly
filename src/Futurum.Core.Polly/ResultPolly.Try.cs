@@ -4,7 +4,7 @@ using Polly;
 
 namespace Futurum.Core.Polly;
 
-public static class ResultPolly
+public static partial class ResultPolly
 {
     /// <summary>
     /// Try to run <paramref name="func"/>, using the Polly policy.
