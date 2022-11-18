@@ -19,766 +19,1514 @@ public class ResultThenTryPollyTests
 
     public class sync_input
     {
-        public class result_non_generic
+        public class sync_output
         {
-            public class to_non_generic
+            public class result_non_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.Ok();
+                            var input = Result.Result.Ok();
 
-                        var func = () => Task.CompletedTask;
+                            var func = () => { };
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => { throw new Exception(ERROR_MESSAGE); };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Ok();
-
-                        var func = () =>
+                        [Fact]
+                        public void to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.CompletedTask;
-                        };
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var func = () => { };
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => { throw new Exception(ERROR_MESSAGE); };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
+                            var input = Result.Result.Ok();
 
-                        var func = () => Task.CompletedTask;
+                            var func = () => value;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
-
-                        var func = () =>
+                        [Fact]
+                        public void to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.CompletedTask;
-                        };
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var func = () => value;
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_non_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.Ok();
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.Fail(ERROR_MESSAGE);
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Ok();
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Fail(ERROR_MESSAGE);
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.Ok(value);
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Ok(value);
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
             }
 
-            public class to_generic
+            public class result_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Ok();
-
-                        var func = () => Task.FromResult(value);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Ok();
-
-                        var func = () =>
+                        [Fact]
+                        public void to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var input = Result.Result.Ok(inputValue);
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                    }
-                }
+                            var func = (int x) => { inputReceived = x; };
 
-                public class input_failure
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
 
-                        var func = () => Task.FromResult(value);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
-
-                        var func = () =>
+                        [Fact]
+                        public void to_exception()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var input = Result.Result.Ok(inputValue);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-                }
-            }
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
 
-            public class to_result_non_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                                throw new Exception(ERROR_MESSAGE);
+                            };
 
-                        var input = Result.Result.Ok();
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        var func = () => Result.Result.OkAsync();
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.Ok();
+                            var inputReceived = 0;
 
-                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                            var func = (int x) => { inputReceived = x; };
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                    }
-                }
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                public class input_failure
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
 
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var func = () => Result.Result.OkAsync();
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
 
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                                throw new Exception(ERROR_MESSAGE);
+                            };
 
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-                }
-            }
-
-            public class to_result_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Ok();
-
-                        var func = () => Result.Result.OkAsync(value);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Ok();
-
-                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public void to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
+                            var inputReceived = 0;
 
-                        var func = () => Result.Result.OkAsync(value);
+                            var input = Result.Result.Ok(inputValue);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return value;
+                            };
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.Fail(ERROR_MESSAGE);
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
-                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            var func = (int x) => value;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_non_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok();
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Result.Result.Fail(ERROR_MESSAGE);
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok();
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Fail(ERROR_MESSAGE);
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok(value);
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Fail<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public void to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok(value);
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public void to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Fail<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = input.ThenTry(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
             }
         }
 
-        public class result_generic
+        public class async_output
         {
-            public class to_non_generic
+            public class result_non_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var inputValue = 10;
-                        var value = 20;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Task.CompletedTask;
-                        };
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var input = Result.Result.Ok();
 
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
+                            var func = () => Task.CompletedTask;
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var inputValue = 10;
-                        var value = 20;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            throw new Exception(ERROR_MESSAGE);
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                            return Task.CompletedTask;
-                        };
+                            var func = () => Task.CompletedTask;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 20;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.CompletedTask;
-                        };
+                            var input = Result.Result.Ok();
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var func = () => Task.FromResult(value);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.FromResult(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            throw new Exception(ERROR_MESSAGE);
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
 
-                            return Task.CompletedTask;
-                        };
+                            var func = () => Task.FromResult(value);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.FromResult(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_non_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.OkAsync();
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.OkAsync();
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.OkAsync(value);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Ok();
+
+                            var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.OkAsync(value);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.Fail(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
             }
 
-            public class to_generic
+            public class result_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Task.FromResult(value);
-                        };
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var inputReceived = 0;
 
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+                            var inputReceived = 0;
 
-                        var func = (int x) => Task.FromResult(value);
+                            var input = Result.Result.Ok(inputValue);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Task.FromResult(value);
+                            };
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.FromResult(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var func = (int x) => Task.FromResult(value);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-                }
-            }
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
 
-            public class to_result_non_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
 
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_exception()
                         {
-                            inputReceived = x;
-                            return Result.Result.OkAsync();
-                        };
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
 
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
-                    }
+                            var func = (int x) =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
 
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                                return Task.FromResult(value);
+                            };
 
-                        var inputReceived = 0;
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
 
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-
-                            throw new Exception(ERROR_MESSAGE);
-
-                            return Result.Result.FailAsync(ERROR_MESSAGE);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
-                    }
-                }
-
-                public class input_failure
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.OkAsync();
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.FailAsync(ERROR_MESSAGE);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
-                    }
-                }
-            }
-
-            public class to_result_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.OkAsync(value);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Ok(inputValue);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_result_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Result.Result.OkAsync(value);
-                        };
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var inputReceived = 0;
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync();
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Result.Result.FailAsync(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.Fail<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
-                        };
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var inputReceived = 0;
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync();
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.FailAsync(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Ok(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
             }
@@ -787,786 +1535,1564 @@ public class ResultThenTryPollyTests
 
     public class async_input
     {
-        public class result_non_generic
+        public class sync_output
         {
-            public class to_non_generic
+            public class result_non_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.OkAsync();
+                            var input = Result.Result.OkAsync();
 
-                        var func = () => Task.CompletedTask;
+                            var func = () => {};
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.OkAsync();
-
-                        var func = () =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.CompletedTask;
-                        };
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var func = () => {};
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
+                            var input = Result.Result.OkAsync();
 
-                        var func = () => Task.CompletedTask;
+                            var func = () => value;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
-
-                        var func = () =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.CompletedTask;
-                        };
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var func = () => value;
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_non_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.Ok();
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.Fail(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Ok();
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Fail(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.Ok(value);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Ok(value);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.Fail<int>(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
             }
 
-            public class to_generic
+            public class result_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.OkAsync();
-
-                        var func = () => Task.FromResult(value);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.OkAsync();
-
-                        var func = () =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var input = Result.Result.OkAsync(inputValue);
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                    }
-                }
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                            };
 
-                public class input_failure
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
 
-                        var func = () => Task.FromResult(value);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
-
-                        var func = () =>
+                        [Fact]
+                        public async Task to_exception()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var input = Result.Result.OkAsync(inputValue);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-                }
-            }
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
 
-            public class to_result_non_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                                throw new Exception(ERROR_MESSAGE);
+                            };
 
-                        var input = Result.Result.OkAsync();
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        var func = () => Result.Result.OkAsync();
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.OkAsync();
+                            var inputReceived = 0;
 
-                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                            };
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                    }
-                }
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                public class input_failure
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
 
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var func = () => Result.Result.OkAsync();
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
 
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                                throw new Exception(ERROR_MESSAGE);
+                            };
 
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
 
-                        var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-                }
-            }
-
-            public class to_result_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.OkAsync();
-
-                        var func = () => Result.Result.OkAsync(value);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.OkAsync();
-
-                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
+                            var inputReceived = 0;
 
-                        var func = () => Result.Result.OkAsync(value);
+                            var input = Result.Result.OkAsync(inputValue);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return value;
+                            };
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.FailAsync(ERROR_MESSAGE);
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
-                        var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            var func = (int x) => value;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return value;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_non_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok();
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Result.Result.Fail(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok();
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Fail(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Fail<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Ok(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.Fail<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
             }
         }
-
-        public class result_generic
+        
+        public class async_output
         {
-            public class to_non_generic
+            public class result_non_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var inputValue = 10;
-                        var value = 20;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Task.CompletedTask;
-                        };
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var input = Result.Result.OkAsync();
 
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
+                            var func = () => Task.CompletedTask;
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var inputValue = 10;
-                        var value = 20;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            throw new Exception(ERROR_MESSAGE);
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                            return Task.CompletedTask;
-                        };
+                            var func = () => Task.CompletedTask;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 20;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.CompletedTask;
-                        };
+                            var input = Result.Result.OkAsync();
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var func = () => Task.FromResult(value);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.FromResult(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            throw new Exception(ERROR_MESSAGE);
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
 
-                            return Task.CompletedTask;
-                        };
+                            var func = () => Task.FromResult(value);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy(() => count++, retryCount));
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.FromResult(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_non_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.OkAsync();
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.OkAsync();
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.OkAsync(value);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.OkAsync();
+
+                            var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.OkAsync(value);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var input = Result.Result.FailAsync(ERROR_MESSAGE);
+
+                            var func = () => Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
             }
 
-            public class to_generic
+            public class result_generic
             {
-                public class input_success
+                public class to_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Task.FromResult(value);
-                        };
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var inputReceived = 0;
 
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 20;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var inputReceived = 0;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.CompletedTask;
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            var inputReceived = 0;
 
-                        var func = (int x) => Task.FromResult(value);
+                            var input = Result.Result.OkAsync(inputValue);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Task.FromResult(value);
+                            };
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Task.FromResult(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            throw new Exception(ERROR_MESSAGE);
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                            return Task.FromResult(value);
-                        };
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicy<int>(() => count++, retryCount));
+                            var func = (int x) => Task.FromResult(value);
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                    }
-                }
-            }
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
 
-            public class to_result_non_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
 
-                        var inputReceived = 0;
-
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_exception()
                         {
-                            inputReceived = x;
-                            return Result.Result.OkAsync();
-                        };
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
 
-                        result.ShouldBeSuccess();
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
-                    }
+                            var func = (int x) =>
+                            {
+                                throw new Exception(ERROR_MESSAGE);
 
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
+                                return Task.FromResult(value);
+                            };
 
-                        var inputReceived = 0;
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, RetryPolicyAsync<int>(() => count++, retryCount));
 
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-
-                            throw new Exception(ERROR_MESSAGE);
-
-                            return Result.Result.FailAsync(ERROR_MESSAGE);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
-                    }
-                }
-
-                public class input_failure
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.OkAsync();
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.FailAsync(ERROR_MESSAGE);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
-                    }
-                }
-            }
-
-            public class to_result_generic
-            {
-                public class input_success
-                {
-                    [Fact]
-                    public async Task to_success()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.OkAsync(value);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeSuccessWithValue(value);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(inputValue);
-                    }
-
-                    [Fact]
-                    public async Task to_exception()
-                    {
-                        var inputValue = 10;
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.OkAsync(inputValue);
-
-                        var func = (int x) =>
-                        {
-                            inputReceived = x;
-                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
-                        };
-
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
-
-                        result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
-                        count.Should().Be(retryCount);
-                        inputReceived.Should().Be(inputValue);
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                        }
                     }
                 }
 
-                public class input_failure
+                public class to_result_non_generic
                 {
-                    [Fact]
-                    public async Task to_success()
+                    public class input_success
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Result.Result.OkAsync(value);
-                        };
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var inputReceived = 0;
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync();
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeSuccess();
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+
+                                throw new Exception(ERROR_MESSAGE);
+
+                                return Result.Result.FailAsync(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithErrorSafe($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
                     }
 
-                    [Fact]
-                    public async Task to_exception()
+                    public class input_failure
                     {
-                        var value = 10;
-                        var count = 0;
-                        var retryCount = 3;
-
-                        var inputReceived = 0;
-
-                        var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
-
-                        var func = (int x) =>
+                        [Fact]
+                        public async Task to_success()
                         {
-                            inputReceived = x;
-                            return Result.Result.FailAsync<int>(ERROR_MESSAGE);
-                        };
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
 
-                        var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicy<int>(() => count++, retryCount));
+                            var inputReceived = 0;
 
-                        result.ShouldBeFailureWithError(ERROR_MESSAGE);
-                        count.Should().Be(0);
-                        inputReceived.Should().Be(0);
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync();
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.FailAsync(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+                    }
+                }
+
+                public class to_result_generic
+                {
+                    public class input_success
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeSuccessWithValue(value);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(inputValue);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var inputValue = 10;
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.OkAsync(inputValue);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError($"{ERROR_MESSAGE};{ERROR_MESSAGE}");
+                            count.Should().Be(retryCount);
+                            inputReceived.Should().Be(inputValue);
+                        }
+                    }
+
+                    public class input_failure
+                    {
+                        [Fact]
+                        public async Task to_success()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.OkAsync(value);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
+
+                        [Fact]
+                        public async Task to_exception()
+                        {
+                            var value = 10;
+                            var count = 0;
+                            var retryCount = 3;
+
+                            var inputReceived = 0;
+
+                            var input = Result.Result.FailAsync<int>(ERROR_MESSAGE);
+
+                            var func = (int x) =>
+                            {
+                                inputReceived = x;
+                                return Result.Result.FailAsync<int>(ERROR_MESSAGE);
+                            };
+
+                            var result = await input.ThenTryAsync(func, () => ERROR_MESSAGE, ResultRetryPolicyAsync<int>(() => count++, retryCount));
+
+                            result.ShouldBeFailureWithError(ERROR_MESSAGE);
+                            count.Should().Be(0);
+                            inputReceived.Should().Be(0);
+                        }
                     }
                 }
             }
         }
     }
 
-    private static AsyncRetryPolicy RetryPolicy(Action action, int retryCount) =>
+    private static RetryPolicy RetryPolicy(Action action, int retryCount) =>
+        Policy.Handle<Exception>()
+              .Retry(retryCount, (_, _, _) => action());
+
+    private static RetryPolicy<T> RetryPolicy<T>(Action action, int retryCount) =>
+        Policy<T>.Handle<Exception>()
+                 .Retry(retryCount, (_, _, _) => action());
+
+    private static RetryPolicy<Result.Result> ResultRetryPolicy(Action action, int retryCount) =>
+        Policy.Handle<Exception>()
+              .HandleResult()
+              .Retry(retryCount, (_, _, _) => action());
+
+    private static RetryPolicy<Result<T>> ResultRetryPolicy<T>(Action action, int retryCount) =>
+        Policy.Handle<Exception>()
+              .HandleResult<T>()
+              .Retry(retryCount, (_, _, _) => action());
+
+    private static AsyncRetryPolicy RetryPolicyAsync(Action action, int retryCount) =>
         Policy.Handle<Exception>()
               .RetryAsync(retryCount, (_, _, _) => action());
 
-    private static AsyncRetryPolicy<T> RetryPolicy<T>(Action action, int retryCount) =>
+    private static AsyncRetryPolicy<T> RetryPolicyAsync<T>(Action action, int retryCount) =>
         Policy<T>.Handle<Exception>()
-              .RetryAsync(retryCount, (_, _, _) => action());
+                 .RetryAsync(retryCount, (_, _, _) => action());
 
-    private static AsyncRetryPolicy<Result.Result> ResultRetryPolicy(Action action, int retryCount) =>
+    private static AsyncRetryPolicy<Result.Result> ResultRetryPolicyAsync(Action action, int retryCount) =>
         Policy.Handle<Exception>()
               .HandleResult()
               .RetryAsync(retryCount, (_, _, _) => action());
 
-    private static AsyncRetryPolicy<Result<T>> ResultRetryPolicy<T>(Action action, int retryCount) =>
+    private static AsyncRetryPolicy<Result<T>> ResultRetryPolicyAsync<T>(Action action, int retryCount) =>
         Policy.Handle<Exception>()
               .HandleResult<T>()
               .RetryAsync(retryCount, (_, _, _) => action());
