@@ -52,6 +52,28 @@ public class PollyPolicyBuilderExtensionsHandleResultTests
             returnedResult.ShouldBeFailureWithError(ERROR_MESSAGE);
             retryTried.Should().Be(retryCount);
         }
+
+        [Fact]
+        public void correctly_identifies_exception()
+        {
+            var retryCount = 3;
+            var retryTried = 0;
+
+            var policy = Policy.Handle<Exception>()
+                               .HandleResult()
+                               .Retry(retryCount, (_, _, _) => { retryTried++; });
+
+            Assert.Throws<Exception>(ReturnedResult).Message.Should().Be(ERROR_MESSAGE);
+            retryTried.Should().Be(retryCount);
+
+            object ReturnedResult() =>
+                policy.Execute(() =>
+                {
+                    throw new Exception(ERROR_MESSAGE);
+                    
+                    return Result.Result.Ok();
+                });
+        }
     }
 
     public class generic
@@ -93,6 +115,28 @@ public class PollyPolicyBuilderExtensionsHandleResultTests
 
             returnedResult.ShouldBeFailureWithError(ERROR_MESSAGE);
             retryTried.Should().Be(retryCount);
+        }
+
+        [Fact]
+        public void correctly_identifies_exception()
+        {
+            var retryCount = 3;
+            var retryTried = 0;
+
+            var policy = Policy.Handle<Exception>()
+                               .HandleResult<int>()
+                               .Retry(retryCount, (_, _, _) => { retryTried++; });
+
+            Assert.Throws<Exception>(ReturnedResult).Message.Should().Be(ERROR_MESSAGE);
+            retryTried.Should().Be(retryCount);
+
+            object ReturnedResult() =>
+                policy.Execute(() =>
+                {
+                    throw new Exception(ERROR_MESSAGE);
+                    
+                    return Result.Result.Ok(0);
+                });
         }
     }
 }
